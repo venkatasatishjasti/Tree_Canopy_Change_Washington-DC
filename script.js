@@ -1,14 +1,14 @@
-// Initialize the map centered on Washington DC
-        const map = L.map('map').setView([38.9072, -77.0369], 13);
+// Set Mapbox access token
+mapboxgl.accessToken = 'pk.eyJ1IjoidmVua2F0YTEyMyIsImEiOiJjbWVybXBoZ2swOGtoMmpvamN0M2xiNjl5In0.L5UH-_-pl5NzilXlb-gWjQ';
 
-        // Add Carto Positron tile layer
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            maxZoom: 19
-        }).addTo(map);
+const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/light-v11',
+    center: [-77.0369, 38.9072],
+    zoom: 12
+});
 
-        // POI data
-        const pois = [
+const pois = [
             {
                 "coords": [38.86435276, -76.97804923],
                 "address": "3999 8TH STREET SE",
@@ -292,126 +292,8 @@
 
 ];
 
-
-        // Create custom markers for each POI
-        const markers = [];
-        pois.forEach(poi => {
-            // Create custom icon using the tree image
-            const customIcon = L.icon({
-                iconUrl: 'tree-icon.png',
-                iconSize: [35, 35],
-                iconAnchor: [20, 35],
-                popupAnchor: [0, -35]
-            });
-
-            // Create popup content with image slider
-            const sliderId = `slider-${Math.random().toString(36).substr(2, 9)}`;
-            const popupContent = `
-                <div class="popup-header">
-                    <div class="image-container" id="${sliderId}">
-                        <button class="slider-arrow prev" onclick="changeImageSlide('${sliderId}', -1)">‹</button>
-                        <button class="slider-arrow next" onclick="changeImageSlide('${sliderId}', 1)">›</button>
-                        <div class="images-wrapper">
-                            <div class="image-set">
-                                <img src="${poi.image1}" 
-                                     alt="${poi.address} - Image 1" 
-                                     class="popup-image" 
-                                     onerror="this.style.display='none';" />
-                                <img src="${poi.image2}" 
-                                     alt="${poi.address} - Image 2" 
-                                     class="popup-image" 
-                                     onerror="this.style.display='none';" />
-                            </div>
-                            <div class="image-set">
-                                <img src="${poi.image3}" 
-                                     alt="${poi.address} - Image 3" 
-                                     class="popup-image full" 
-                                     onerror="this.style.display='none';" />
-                            </div>
-                        </div>
-                        <div class="slider-dots">
-                            <span class="slider-dot active" onclick="goToImageSlide('${sliderId}', 0)"></span>
-                            <span class="slider-dot" onclick="goToImageSlide('${sliderId}', 1)"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="popup-body">
-                    <div class="popup-title">${poi.address}</div>
-                    <div class="popup-address">Total Tree Count: ${poi.TotalTreeCount}</div>
-                    <div class="popup-address">Tree Fund Amount: ${poi.TreeFundAmount}</div>
-                </div>
-            `;
-
-            // Create marker and add to map
-            const marker = L.marker(poi.coords, { icon: customIcon })
-                .bindPopup(popupContent, {
-                    maxWidth: 350,
-                    className: 'custom-popup'
-                })
-                .addTo(map);
-
-            markers.push(marker);
-        });
-
-        // Fit map to show all markers
-        const group = L.featureGroup(markers);
-        map.fitBounds(group.getBounds().pad(0.1));
-
-        // Add scale control
-        L.control.scale().addTo(map);
-
-        // Slider functionality
-        const sliderStates = {};
-
-        function changeImageSlide(sliderId, direction) {
-            if (!sliderStates[sliderId]) {
-                sliderStates[sliderId] = { currentIndex: 0 };
-            }
-            
-            const state = sliderStates[sliderId];
-            const container = document.getElementById(sliderId);
-            if (!container) return;
-            
-            const wrapper = container.querySelector('.images-wrapper');
-            const dots = container.querySelectorAll('.slider-dot');
-            const totalSlides = 2;
-            
-            state.currentIndex += direction;
-            
-            // Wrap around
-            if (state.currentIndex < 0) {
-                state.currentIndex = totalSlides - 1;
-            } else if (state.currentIndex >= totalSlides) {
-                state.currentIndex = 0;
-            }
-            
-            // Slide the images
-            wrapper.style.transform = `translateX(-${state.currentIndex * 50}%)`;
-            
-            // Update dots
-            dots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === state.currentIndex);
-            });
-        }
-
-        function goToImageSlide(sliderId, index) {
-            if (!sliderStates[sliderId]) {
-                sliderStates[sliderId] = { currentIndex: 0 };
-            }
-            
-            const state = sliderStates[sliderId];
-            const container = document.getElementById(sliderId);
-            if (!container) return;
-            
-            const wrapper = container.querySelector('.images-wrapper');
-            const dots = container.querySelectorAll('.slider-dot');
-            
-            state.currentIndex = index;
-            wrapper.style.transform = `translateX(-${state.currentIndex * 50}%)`;
-            
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === state.currentIndex);
-            });
-        }
-
-        console.log('Leaflet map loaded successfully with', pois.length, 'POIs');
+map.on('load', () => {
+    createLayerToggle(map);
+    createTreeMarkers(map, pois);
+    initializeLayerControls(map);
+});

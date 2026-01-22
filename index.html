@@ -4,15 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Washington DC Points of Interest</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="info-banner">🗺️ Washington DC Tree Canopy Change - Click Trees to explore!</div>
     <div id="map"></div>
+    
+    <!-- Layer Toggle Controls -->
+    <div id="layer-controls" class="layer-controls">
+        <h3>Tree Canopy Layers</h3>
+        <label class="toggle-label">
+            <input type="checkbox" id="toggle-2024" />
+            <span class="layer-color" style="background-color: #228B22;"></span>
+            <span>Trees 2024</span>
+        </label>
+        <label class="toggle-label">
+            <input type="checkbox" id="toggle-2020" />
+            <span class="layer-color" style="background-color: #ff0000;"></span>
+            <span>Trees 2020</span>
+        </label>
+    </div>
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+    <script src="components/imageSlider.js"></script>
+    <script src="components/LayerToggle.js"></script>
+    <script src="components/TreeMarkers.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
